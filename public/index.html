@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Printer Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BC Printer Status Monitor</h1>
+            <p>Real-time status of Boston College printers</p>
+        </header>
+
+        <div class="controls">
+            <button id="refreshBtn">Refresh Status</button>
+            <span id="lastUpdated"></span>
+        </div>
+
+        <div class="printers-grid" id="printersContainer">
+            <!-- Printer cards will be loaded here -->
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Checking printer status...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
