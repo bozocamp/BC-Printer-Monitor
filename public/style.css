@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -37,28 +37,37 @@ header p {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
-#refreshBtn {
+.controls button {
     background: #4CAF50;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 20px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     transition: background 0.3s;
 }
 
-#refreshBtn:hover {
+.controls button:hover {
     background: #45a049;
 }
 
-#refreshBtn:disabled {
+.controls button:disabled {
     background: #cccccc;
     cursor: not-allowed;
+}
+
+#refreshDetailsBtn {
+    background: #2196F3;
+}
+
+#refreshDetailsBtn:hover {
+    background: #1976D2;
 }
 
 #lastUpdated {
@@ -68,83 +77,88 @@ header p {
 
 .printers-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 25px;
     margin-bottom: 30px;
 }
 
 .printer-card {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .printer-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .printer-card.online {
-    border-left: 5px solid #4CAF50;
+    border-left: 6px solid #4CAF50;
 }
 
 .printer-card.offline {
-    border-left: 5px solid #f44336;
+    border-left: 6px solid #f44336;
 }
 
 .printer-card.unknown {
-    border-left: 5px solid #ff9800;
+    border-left: 6px solid #ff9800;
 }
 
 .printer-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
 .printer-name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: bold;
     color: #333;
-    flex: 1;
 }
 
 .status-indicator {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    margin-left: 10px;
 }
 
 .status-indicator.online {
     background: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
 }
 
 .status-indicator.offline {
     background: #f44336;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
 }
 
 .status-indicator.unknown {
     background: #ff9800;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
 }
 
 .printer-details {
-    color: #666;
+    color: #555;
 }
 
 .printer-ip {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     font-family: monospace;
+    font-size: 0.9rem;
+    color: #666;
 }
 
 .printer-status {
     font-weight: bold;
-    margin-top: 10px;
-    padding: 5px 10px;
-    border-radius: 4px;
+    margin: 15px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
     display: inline-block;
 }
 
@@ -162,6 +176,84 @@ header p {
     background: #fff3e0;
     color: #ef6c00;
 }
+
+.details-section {
+    margin-top: 20px;
+}
+
+.details-section h4 {
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.toner-info, .tray-info {
+    margin-bottom: 15px;
+}
+
+.toner-item, .tray-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.toner-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.toner-black { background: #000; }
+.toner-cyan { background: #00bcd4; }
+.toner-magenta { background: #e91e63; }
+.toner-yellow { background: #ffeb3b; }
+
+.toner-level {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.toner-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.toner-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.toner-fill.low { background: #f44336; }
+.toner-fill.medium { background: #ff9800; }
+.toner-fill.high { background: #4CAF50; }
+
+.toner-percentage {
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 40px;
+    text-align: right;
+}
+
+.tray-status {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.tray-ok { background: #e8f5e8; color: #2e7d32; }
+.tray-low { background: #fff3e0; color: #ef6c00; }
+.tray-empty { background: #ffebee; color: #c62828; }
+.tray-open { background: #e3f2fd; color: #1565c0; }
 
 .loading {
     text-align: center;
@@ -184,6 +276,15 @@ header p {
     100% { transform: rotate(360deg); }
 }
 
+.error-message {
+    background: #f44336;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 10px 0;
+}
+
 @media (max-width: 768px) {
     .printers-grid {
         grid-template-columns: 1fr;
@@ -196,5 +297,9 @@ header p {
     .controls {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .printer-card {
+        padding: 20px;
     }
 }
