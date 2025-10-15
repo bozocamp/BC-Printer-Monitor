@@ -1,14 +1,14 @@
-const dns = require('dns').promises;
+const net = require('net');
 
 exports.handler = async function(event, context) {
-    // Enable CORS
+    console.log('Printer details function called');
+    
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
 
-    // Handle preflight request
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -36,34 +36,22 @@ exports.handler = async function(event, context) {
             };
         }
 
-        // Check status for all printers
-        const results = await Promise.all(
+        // Get detailed information for all printers
+        const details = await Promise.all(
             printers.map(async (printer) => {
-                const startTime = Date.now();
                 try {
-                    // Try to resolve the hostname first
-                    await dns.lookup(printer.ip);
+                    // In a real implementation, you would:
+                    // 1. Use SNMP to query printer details
+                    // 2. Access the printer's web interface
+                    // 3. Use manufacturer-specific APIs
                     
-                    // For Netlify functions, we can't directly ping, so we'll simulate
-                    // or use HTTP requests to common printer ports
-                    const status = await checkPrinterPort(printer.ip);
+                    // For demo purposes, we'll simulate this
+                    const printerDetails = await simulatePrinterDetails(printer);
+                    return printerDetails;
                     
-                    return {
-                        name: printer.name,
-                        ip: printer.ip,
-                        status: status ? 'online' : 'offline',
-                        responseTime: Date.now() - startTime,
-                        timestamp: new Date().toISOString()
-                    };
                 } catch (error) {
-                    return {
-                        name: printer.name,
-                        ip: printer.ip,
-                        status: 'offline',
-                        responseTime: null,
-                        error: error.message,
-                        timestamp: new Date().toISOString()
-                    };
+                    console.error(`Error getting details for ${printer.name}:`, error);
+                    return getFallbackDetails(printer);
                 }
             })
         );
@@ -71,11 +59,11 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(results)
+            body: JSON.stringify(details)
         };
 
     } catch (error) {
-        console.error('Error in check-printers function:', error);
+        console.error('Error in check-printer-details function:', error);
         
         return {
             statusCode: 500,
@@ -88,23 +76,94 @@ exports.handler = async function(event, context) {
     }
 };
 
-// Helper function to check printer status
-// Note: This is a simplified check since we can't do ICMP ping in Netlify functions
-async function checkPrinterPort(ip) {
-    // In a real implementation, you might want to:
-    // 1. Use a third-party ping service
-    // 2. Check common printer ports (9100, 515, 631)
-    // 3. Use a server that can perform actual pings
+// Simulate getting detailed printer information
+async function simulatePrinterDetails(printer) {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 300));
     
-    // For now, we'll simulate the check
-    // In production, you might want to replace this with actual port checking
-    // or use a service like ping.js or similar
+    const isColorPrinter = printer.name.toLowerCase().includes('color');
+    const isOnline = Math.random() > 0.2; // 80% chance of being online
     
-    try {
-        // This is a placeholder - you'd need to implement actual port checking
-        // For demo purposes, we'll return a simulated result
-        return Math.random() > 0.3; // 70% chance of being online for demo
-    } catch (error) {
-        return false;
+    if (!isOnline) {
+        return getFallbackDetails(printer);
     }
+    
+    return {
+        name: printer.name,
+        ip: printer.ip,
+        model: simulatePrinterModel(printer.name),
+        status: 'online',
+        toners: simulateTonerLevels(isColorPrinter),
+        trays: simulateTrayStatus(),
+        maintenance: simulateMaintenanceInfo(),
+        timestamp: new Date().toISOString()
+    };
+}
+
+function simulateTonerLevels(isColorPrinter) {
+    if (isColorPrinter) {
+        return [
+            { color: 'Black', level: Math.floor(Math.random() * 100) },
+            { color: 'Cyan', level: Math.floor(Math.random() * 100) },
+            { color: 'Magenta', level: Math.floor(Math.random() * 100) },
+            { color: 'Yellow', level: Math.floor(Math.random() * 100) }
+        ];
+    } else {
+        return [
+            { color: 'Black', level: Math.floor(Math.random() * 100) }
+        ];
+    }
+}
+
+function simulateTrayStatus() {
+    const statuses = ['OK', 'LOW', 'EMPTY', 'OPEN'];
+    const trays = [
+        { name: 'Tray 1', status: statuses[Math.floor(Math.random() * 3)] }, // No OPEN for main tray
+        { name: 'Tray 2', status: statuses[Math.floor(Math.random() * 4)] },
+        { name: 'Manual', status: 'OK' }
+    ];
+    return trays;
+}
+
+function simulateMaintenanceInfo() {
+    return {
+        drumLife: Math.floor(Math.random() * 100),
+        pageCount: Math.floor(Math.random() * 50000),
+        status: ['OK', 'NEEDS_MAINTENANCE', 'OK'][Math.floor(Math.random() * 3)]
+    };
+}
+
+function simulatePrinterModel(printerName) {
+    const models = [
+        'HP LaserJet Pro M404dn',
+        'Canon imageCLASS MF743Cdw',
+        'Xerox VersaLink C405',
+        'Brother HL-L8360CDW',
+        'Kyocera Ecosys M6526cdn'
+    ];
+    return models[Math.floor(Math.random() * models.length)];
+}
+
+function getFallbackDetails(printer) {
+    const isColorPrinter = printer.name.toLowerCase().includes('color');
+    return {
+        name: printer.name,
+        ip: printer.ip,
+        status: 'offline',
+        toners: isColorPrinter ? [
+            { color: 'Black', level: 0 },
+            { color: 'Cyan', level: 0 },
+            { color: 'Magenta', level: 0 },
+            { color: 'Yellow', level: 0 }
+        ] : [
+            { color: 'Black', level: 0 }
+        ],
+        trays: [
+            { name: 'Tray 1', status: 'UNKNOWN' },
+            { name: 'Tray 2', status: 'UNKNOWN' },
+            { name: 'Manual', status: 'UNKNOWN' }
+        ],
+        error: 'Printer offline or not responding',
+        timestamp: new Date().toISOString()
+    };
 }
